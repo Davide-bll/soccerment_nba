@@ -52,7 +52,7 @@ I decide to keep the distinction between offensive and defensive bounds.
 - *data/players_post_corr.csv*
 - *data/scaled_features_post_corr.csv*
 
-## Step3: PCA and interpretation in ShinyApp
+## Step3: Principal Component Analysis
 
 **Scripts**:
 - *pre_processing.py*
@@ -128,3 +128,4 @@ Same as Step 4, but the maximum distance is calcolated per every role.
 **Data Output**: 
 - *output_data/by_roles_overall_distances.csv*
 
+## Step6: 
