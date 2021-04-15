@@ -64,7 +64,7 @@ but one interesting thing is that looking and the scores of the observations of 
 overlapping between the green *Point Guard* (PG) line and the purple *Shooting Guard* line (SG).
 Again, could be misleading since the first 2 pc togheter explain about 50% f the variability
 
-plot obs vs first 2 pc
+![alt text](scores_pc.png)
 
 
 
