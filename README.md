@@ -93,7 +93,7 @@ The distance used is the standard euclidean distance:
 
 So the complementarity formula is:
 
-<img src="https://render.githubusercontent.com/render/math?math=complementarity(p_1, p_2) = dist(p_1, p_2)/maxdist">
+<img src="https://render.githubusercontent.com/render/math?math=complementarity(p_1, p_2) = \frac{dist(p_1, p_2)}{maxdist}">
 
 The similarity formula is just the "complement of the complementarity:"
 
@@ -128,4 +128,9 @@ Same as Step 4, but the maximum distance is calcolated per every role.
 **Data Output**: 
 - *output_data/by_roles_overall_distances.csv*
 
-## Step6: 
+## Step6: Shiny App for data visualization
+
+Link:
+
+
+[Data Visualization App](https://teleworkingproject.shinyapps.io/nba_data_vis/)
