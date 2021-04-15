@@ -58,11 +58,13 @@ I decide to keep the distinction between offensive and defensive bounds.
 - *pre_processing.py*
 
 Principal Component Analysis with scaled data
-From The Pca Analysis, we can see that the first 3 PC explain about 60% of the total variance.
+
+
+From the Pca Analysis, we can see that the first 3 PC explain about 60% of the total variance.
 It's not trivial then to compare the loadings and deduce complete information about the dataset variability, 
 but one interesting thing is that looking and the scores of the observations of the first two PC, we can see a sort of 
 overlapping between the green *Point Guard* (PG) line and the purple *Shooting Guard* line (SG).
-Again, could be misleading since the first 2 pc togheter explain about 50% f the variability
+Again, it could be misleading since the first 2 pc togheter explain about 50% of the variability
 
 ![alt text](scores_pc.png)
 
