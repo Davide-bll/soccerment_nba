@@ -1,0 +1,12 @@
+name: nba_data_vis
+title: nba_data_vis
+username:
+account: teleworkingproject
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3970277
+bundleId: 4474873
+url: https://teleworkingproject.shinyapps.io/nba_data_vis/
+when: 1618487409.10202
+asMultiple: FALSE
+asStatic: FALSE
