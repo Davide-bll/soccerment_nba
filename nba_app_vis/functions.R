@@ -800,8 +800,8 @@ normal_plots <- function(x, title_list = list(hist = "histogram",
   
 }
 
-spider_df <- function(df, player_id, lower = 0, upper = 1) {
-  df <- df %>% filter(ID %in% player_id)
+spider_df <- function(df, values_id, id_name = "ID", lower = 0, upper = 1) {
+  df <- df %>% filter(!!sym(id_name) %in% values_id)
   num_vars <- extract_types_original(df)[['num_vars']]
   n_cols <- length(num_vars)
   
@@ -812,10 +812,10 @@ spider_df <- function(df, player_id, lower = 0, upper = 1) {
   
 }
 
-spider_chart <- function(df, player_list) {
-  colors_border <-  RColorBrewer::brewer.pal(length(player_list), 'Dark2')
+spider_chart <- function(df, values_id, id_name = "ID", lower = 0, upper = 1) {
+  colors_border <-  RColorBrewer::brewer.pal(length(values_id), 'Dark2')
   
-  spider_df(df, player_list) %>% 
+  spider_df(df, values_id, id_name = id_name, lower = lower, upper = upper) %>% 
     radarchart( axistype=1 , 
                 #custom polygon
                 plwd=4 , plty=1,
@@ -830,7 +830,7 @@ spider_chart <- function(df, player_list) {
     )
   
   # Add a legend
-  legend(x=1, y=1, legend = player_list, bty = "n", pch=20 , col=colors_border , text.col = "grey", cex=1.2, pt.cex=3)
+  legend(x=1, y=1, legend = values_id, bty = "n", pch=20 , col=colors_border , text.col = "grey", cex=1.2, pt.cex=3)
   
 }
 
@@ -1523,4 +1523,165 @@ pca <- function(input, output, session, data) {
   })
 }
 
+# Spider chart modules -----
+# generalize this
+spider_chart_module_ui <- function(id) {
+  
+  ns <- NS(id)
+  # questo deve essere creata in una ui reattiva
+  
+  tagList(
+      
+    sidebarPanel(
+      uiOutput(ns("players"))
+    ),
+    mainPanel(
+      plotOutput(ns("spider_plot")), 
+      tableOutput(ns("table_sim"))
+    )
+    
+  )
+  
+}
+
+spider_chart_module <- function(input, output, session, data_plot, col_id = "ID", data_comp) {
+  
+  output$players <- renderUI({
+    choices <- data_plot %>% pull(col_id) %>% unique()
+    ns <- session$ns
+    
+    selectInput(ns("players"), "Choose players you want to compare", choices = choices, 
+                selected = choices[1], multiple = TRUE)
+    
+  })
+  
+  pl_choosed <- reactive({
+    validate(need(input$players, message = FALSE))
+    input$players
+    
+  })
+  
+  output$spider_plot <- renderPlot({
+    #browser()    
+    spider_chart(data_plot, pl_choosed())
+    
+  })
+  
+  output$table_sim <- renderTable({
+    req(pl_choosed())
+    
+    data_comp %>% 
+      filter((Player1 %in% pl_choosed() & Player2 %in% pl_choosed())) %>% 
+      mutate_if(is.numeric, scales::percent)
+    
+  })
+  
+}
+
+bygroup_spider_chart_module_ui <- function(id) {
+  
+  ns <- NS(id)
+  
+  tagList(
+    
+    uiOutput(ns("role")), 
+    uiOutput(ns("player1")), 
+    uiOutput(ns("player2")), 
+    
+    mainPanel(
+      plotOutput(ns("spider_plot")), 
+      tableOutput(ns("table_sim"))
+    )
+    
+  )
+  
+}
+
+# data_comp -> Player1, Player2, similarity and complementarity 
+bygroup_spider_chart_module <- function(input, output, session, grp_col = "Pos", data_plot, data_comp, 
+                                        grp_col_1 = "Player1", grp_col_2 = "Player2") {
+  
+  # render UI with role
+  output$role <- renderUI({
+    
+    ns <- session$ns
+    
+    choices <- data_plot %>% pull(grp_col) %>% unique()
+    
+    
+    selectInput(ns("role"), "Choose role:", 
+                choices = choices, 
+                selected = choices[1], 
+                multiple = FALSE)
+    
+  })
+  
+  role_ch <- reactive({
+    validate(need(input$role, message = FALSE))
+    input$role
+    
+  })
+  
+  output$player1 <- renderUI({
+    ns <- session$ns
+    
+    req(input$role)
+    
+    
+    choices_player1 <- data_comp %>% 
+      filter(Pos %in% role_ch()) %>% 
+      pull(grp_col_1)
+    
+    selectInput(ns("player1"), label = paste("Choose", role_ch(), "1:"), 
+                choices = choices_player1, 
+                selected = choices_player1[1], 
+                multiple = FALSE)
+    
+    
+    
+  })
+  
+  output$player2 <- renderUI({
+    ns <- session$ns
+    
+    req(input$player1)
+    # list of chices base on player 1
+    choices_player2 <- data_comp %>% 
+      filter(Player1 == input$player1) %>% 
+      arrange(-similarity) %>%
+      pull(grp_col_2)
+    label2 <- paste("Choose", role_ch(), "2, ", "ascending order of complementarity")
+    selectInput(ns("player2"), label = label2, 
+                choices = choices_player2, 
+                selected = choices_player2[1], 
+                multiple = FALSE)
+    
+  })
+  
+  
+  pl_choosed <- reactive({
+    req(input$role)
+    req(input$player1)
+    req(input$player2)
+    
+    c(input$player1, input$player2)
+    
+  })
+  
+  output$spider_plot <- renderPlot({
+    #browser()
+    req(pl_choosed())
+    spider_chart(data_plot, pl_choosed())
+    
+  })
+  
+  output$table_sim <- renderTable({
+    req(pl_choosed())
+    data_comp %>% 
+      filter((!!sym(grp_col_1) == pl_choosed()[1] & !!sym(grp_col_2) == pl_choosed()[2])) %>% 
+      mutate_if(is.numeric, scales::percent)
+    
+  })
+  
+}
 
